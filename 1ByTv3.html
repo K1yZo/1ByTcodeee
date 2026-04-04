@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>1Bytcodeee</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080810;
+  --surface: #0f0f1a;
+  --surface2: #13131f;
+  --surface3: #1a1a2e;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #dde1f0;
+  --text-dim: #5a5f7a;
+  --text-muted: #2a2a3a;
+  --accent: #4ec9b0;
+  --accent2: #7c6fff;
+  --glow: rgba(78,201,176,0.18);
+  --glow2: rgba(124,111,255,0.14);
+  --html-color: #f16529;
+  --css-color: #6b9fff;
+  --js-color: #f0db4f;
+  --editor-bg: #0d0d18;
+  --tab-bar: #0f0f1c;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --glass: rgba(255,255,255,0.03);
+  --glass-border: rgba(255,255,255,0.08);
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(78,201,176,0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 600px 400px at 15% 20%, rgba(78,201,176,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 350px at 85% 80%, rgba(124,111,255,0.07) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#shine {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(circle 220px at var(--mx,-999px) var(--my,-999px),
+    rgba(78,201,176,0.06) 0%,
+    rgba(78,201,176,0.02) 50%,
+    transparent 70%);
+  transition: background 0.05s;
+}
+
+header {
+  height: 52px;
+  background: rgba(10,10,20,0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  gap: 14px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 20;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 4px 24px rgba(0,0,0,0.4);
+}
+
+.logo-area { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.logo-box {
+  width: 30px; height: 30px; border-radius: 8px;
+  overflow: hidden; position: relative; flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(78,201,176,0.3), 0 0 12px rgba(78,201,176,0.15);
+}
+.logo-box img { width:100%;height:100%;object-fit:cover;display:block; }
+.logo-fallback {
+  width:100%;height:100%;
+  background: linear-gradient(135deg, #4ec9b0 0%, #7c6fff 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#080810;
+}
+.logo-hint {
+  position:absolute;inset:0;background:rgba(0,0,0,0.6);
+  display:none;align-items:center;justify-content:center;font-size:11px;color:#fff;border-radius:8px;
+}
+.logo-box:hover .logo-hint { display:flex; }
+#logo-file { display:none; }
+.logo-text {
+  font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;
+  background: linear-gradient(90deg, #4ec9b0, #7c6fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing:0.06em;
+}
+.h-spacer { flex:1; }
+
+.status-pill {
+  display:flex;align-items:center;gap:7px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);
+  background: rgba(255,255,255,0.04);
+  border:1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+  padding:5px 12px;border-radius:20px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.s-dot { width:6px;height:6px;border-radius:50%;background:var(--text-muted);transition:background 0.3s; }
+.s-dot.typing { background:var(--accent);animation:blink-dot 0.8s infinite;box-shadow:0 0 6px var(--accent); }
+.s-dot.ready  { background:#3fb950;box-shadow:0 0 6px #3fb950; }
+@keyframes blink-dot { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+.app {
+  display: grid;
+  grid-template-columns: 272px 1fr 1fr;
+  height: calc(100vh - 52px);
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+  gap: 0;
+}
+
+.left-panel {
+  width: 272px; flex-shrink: 0;
+  background: rgba(15,15,26,0.7);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-right: 1px solid var(--glass-border);
+  display: flex; flex-direction: column; overflow: hidden;
+  box-shadow: inset -1px 0 0 rgba(255,255,255,0.03), 1px 0 20px rgba(0,0,0,0.3);
+}
+
+.lp-title {
+  padding: 12px 16px 10px;
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.18em; color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.02);
+}
+
+.file-tabs { display:flex; padding:10px 10px 8px; gap:5px; border-bottom:1px solid var(--border); flex-shrink:0; }
+.ftab {
+  flex:1; padding:6px 0; border-radius:8px;
+  border:1px solid var(--border2);
+  background: rgba(255,255,255,0.03);
+  color:var(--text-dim); font-size:10px; font-weight:700;
+  font-family:'JetBrains Mono',monospace; cursor:pointer;
+  transition:all 0.2s; text-align:center; letter-spacing:0.05em;
+  backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.ftab:hover { background:rgba(255,255,255,0.06);color:var(--text); }
+.ftab.active.html { background:rgba(241,101,41,0.12);border-color:rgba(241,101,41,0.4);color:var(--html-color);box-shadow: 0 0 12px rgba(241,101,41,0.12), inset 0 1px 0 rgba(241,101,41,0.1); }
+.ftab.active.css  { background:rgba(107,159,255,0.12);border-color:rgba(107,159,255,0.4);color:var(--css-color);box-shadow: 0 0 12px rgba(107,159,255,0.12), inset 0 1px 0 rgba(107,159,255,0.1); }
+.ftab.active.js   { background:rgba(240,219,79,0.12);border-color:rgba(240,219,79,0.4);color:var(--js-color);box-shadow: 0 0 12px rgba(240,219,79,0.12), inset 0 1px 0 rgba(240,219,79,0.1); }
+.ftab svg { flex-shrink: 0; }
+
+.paste-box {
+  flex:1; background:transparent; color:var(--text);
+  font-family:'JetBrains Mono',monospace; font-size:11.5px; line-height:1.7;
+  padding:12px 14px; border:none; outline:none; resize:none; overflow-y:auto;
+  user-select:text;
+}
+.paste-box::placeholder { color:#2a2a40; }
+
+.controls {
+  padding:12px 12px; border-top:1px solid var(--border);
+  display:flex; flex-direction:column; gap:9px; flex-shrink:0;
+  background: rgba(255,255,255,0.015);
+}
+.speed-row { display:flex;align-items:center;gap:9px; }
+.speed-label { font-size:9px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;white-space:nowrap;letter-spacing:0.1em; }
+input[type=range] {
+  flex:1;-webkit-appearance:none;height:3px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--border2) 0%);
+  border-radius:2px;outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none;width:12px;height:12px;border-radius:50%;
+  background:var(--accent);cursor:pointer;
+  box-shadow: 0 0 8px rgba(78,201,176,0.5);
+  border: 2px solid rgba(78,201,176,0.3);
+}
+.speed-val { font-size:10px;color:var(--accent);font-family:'JetBrains Mono',monospace;min-width:20px;text-align:right; }
+.btn-row { display:flex;gap:6px; }
+.btn {
+  flex:1;padding:8px 0;border-radius:9px;border:none;
+  font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;
+  position: relative; overflow: hidden;
+}
+.btn::before {
+  content:''; position:absolute;inset:0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+  pointer-events: none;
+}
+.btn-play { background: linear-gradient(135deg, #4ec9b0, #38b09a);color:#060610;box-shadow: 0 0 16px rgba(78,201,176,0.3), 0 2px 8px rgba(0,0,0,0.3); }
+.btn-play:hover { box-shadow: 0 0 24px rgba(78,201,176,0.5), 0 2px 8px rgba(0,0,0,0.3); transform: translateY(-1px); }
+.btn-play:disabled { opacity:0.3;cursor:not-allowed;box-shadow:none;transform:none; }
+.btn-stop { background: rgba(255,255,255,0.04);color:var(--text-dim);border:1px solid var(--border2);backdrop-filter: blur(8px); }
+.btn-stop:hover { color:#f47c7c;border-color:rgba(244,124,124,0.4);background:rgba(244,124,124,0.08);box-shadow:0 0 12px rgba(244,124,124,0.1); }
+.btn-clr { flex:0;padding:8px 11px;background:rgba(255,255,255,0.04);color:var(--text-dim);border:1px solid var(--border2);font-size:13px;border-radius:9px; }
+.btn-clr:hover { color:var(--text);background:rgba(255,255,255,0.07); }
+
+.editor-wrap {
+  display:flex; flex-direction:column;
+  background: rgba(10,10,20,0.6);
+  backdrop-filter: blur(20px);
+  overflow:hidden;
+  border-right: 1px solid var(--glass-border);
+  box-shadow: inset -1px 0 0 rgba(255,255,255,0.02);
+}
+
+.editor-tabs-bar {
+  height:38px;
+  background: rgba(8,8,16,0.8);
+  backdrop-filter: blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:flex-end; flex-shrink:0;
+  padding: 0 6px;
+  gap: 2px;
+}
+.etab {
+  height:36px; padding:0 14px;
+  display:flex;align-items:center;gap:7px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:#555770;
+  cursor:pointer;
+  border-radius:8px 8px 0 0;
+  background: transparent;
+  user-select:none; transition:all 0.15s; white-space:nowrap;
+  border: 1px solid transparent;
+  border-bottom: none;
+  margin-bottom: -1px;
+}
+.etab:hover { background:rgba(255,255,255,0.04);color:#888aaa; }
+.etab.active {
+  background: rgba(13,13,24,0.95);
+  color:#c8cae0;
+  border-color: var(--border);
+  border-bottom-color: rgba(13,13,24,0.95);
+  box-shadow: 0 -1px 0 var(--accent) inset, 0 -8px 20px rgba(78,201,176,0.04);
+}
+.etab .edot { width:6px;height:6px;border-radius:50%;background:transparent;border:1px solid #333;transition:all 0.2s; flex-shrink:0; }
+.etab.dirty .edot { background:var(--accent);border-color:var(--accent);box-shadow:0 0 5px var(--accent); }
+
+.eicon-html { color:var(--html-color); display:flex; align-items:center; }
+.eicon-css  { color:var(--css-color); display:flex; align-items:center; }
+.eicon-js   { color:var(--js-color); display:flex; align-items:center; }
+
+.editor-inner { flex:1;display:flex;overflow:hidden;position:relative; }
+
+.ln-col {
+  width:52px;
+  background: rgba(8,8,16,0.5);
+  padding:12px 0; font-family:'JetBrains Mono',monospace;
+  font-size:13px; line-height:21px; color:#2e3050;
+  text-align:right; overflow:hidden; flex-shrink:0;
+  border-right:1px solid rgba(255,255,255,0.04); user-select:none;
+}
+.ln-col span { display:block;padding-right:12px; }
+.ln-col span.cur { color:#6668a0; }
+
+.code-scroll { flex:1;overflow:auto;position:relative; }
+
+.code-display-wrap { position: relative; min-width: 100%; min-height: 100%; }
+
+.code-display {
+  position: absolute;
+  top: 0; left: 0;
+  min-width: 100%; min-height: 100%;
+  padding: 12px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; line-height: 21px;
+  white-space: pre; pointer-events: none;
+  z-index: 1; tab-size: 2;
+}
+
+.code-input {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  padding: 12px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; line-height: 21px;
+  white-space: pre; background: transparent;
+  color: transparent; caret-color: #7c6fff;
+  border: none; outline: none; resize: none;
+  z-index: 2; overflow: hidden; tab-size: 2; user-select: text;
+  min-width: 100%; min-height: 100%;
+}
+
+.t-tag  { color:#569cd6; }
+.t-attr { color:#9cdcfe; }
+.t-str  { color:#ce9178; }
+.t-cmt  { color:#5a8f5a;font-style:italic; }
+.t-kw   { color:#c586c0; }
+.t-num  { color:#b5cea8; }
+.t-fn   { color:#dcdcaa; }
+.t-prop { color:#9cdcfe; }
+.t-sel  { color:#d7ba7d; }
+.t-unit { color:#b5cea8; }
+.t-pun  { color:#606080; }
+.t-val  { color:#ce9178; }
+.t-bool { color:#569cd6; }
+.t-op   { color:#d4d4d4; }
+
+.cursor-beam {
+  display:inline-block;width:2px;height:14px;
+  background:#7c6fff;animation:cblink 1s step-end infinite;
+  vertical-align:text-bottom;margin-left:1px;
+  box-shadow: 0 0 6px #7c6fff;
+}
+@keyframes cblink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.preview-wrap {
+  display:flex; flex-direction:column; overflow:hidden;
+  background: rgba(10,10,20,0.5);
+  backdrop-filter: blur(20px);
+}
+.preview-bar {
+  height:38px;
+  background: rgba(8,8,16,0.8);
+  backdrop-filter: blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;
+}
+.win-dots { display:flex;gap:6px; }
+.wd { width:10px;height:10px;border-radius:50%;cursor:pointer;transition:filter 0.2s; }
+.wd:hover { filter:brightness(1.3); }
+.wd.r{background:#ff5f57;box-shadow:0 0 6px rgba(255,95,87,0.4);}
+.wd.y{background:#febc2e;box-shadow:0 0 6px rgba(254,188,46,0.4);}
+.wd.g{background:#28c840;box-shadow:0 0 6px rgba(40,200,64,0.4);}
+.preview-title { flex:1;text-align:center;font-size:10px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;letter-spacing:0.1em; }
+
+.btn-refresh {
+  width:26px;height:26px;border-radius:7px;border:1px solid var(--border2);
+  background:rgba(255,255,255,0.04);color:var(--text-dim);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.2s;font-size:13px;
+  backdrop-filter: blur(8px);
+}
+.btn-refresh:hover {
+  color:var(--accent);border-color:rgba(78,201,176,0.35);
+  background:rgba(78,201,176,0.07);
+  box-shadow:0 0 10px rgba(78,201,176,0.12);
+  transform: rotate(90deg);
+}
+
+.preview-frame { flex:1;border:none;background:#fff;display:block; }
+
+::-webkit-scrollbar { width:6px;height:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08);border-radius:4px; }
+::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.14); }
+
+.toast {
+  position:fixed;bottom:22px;left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background: rgba(20,20,35,0.9);
+  backdrop-filter: blur(16px);
+  border:1px solid var(--glass-border);
+  color:var(--text);padding:8px 18px;border-radius:10px;
+  font-size:11px;font-family:'JetBrains Mono',monospace;
+  z-index:999;pointer-events:none;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04) inset;
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+
+.glow-line {
+  position: fixed;
+  top: 52px;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(78,201,176,0.3) 30%,
+    rgba(124,111,255,0.3) 70%,
+    transparent 100%);
+  z-index: 19;
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<div id="shine"></div>
+<div class="glow-line"></div>
+
+<header>
+  <div class="logo-area" onclick="document.getElementById('logo-file').click()" title="Click to upload your logo">
+    <div class="logo-box">
+      <div class="logo-fallback" id="logo-fallback">1B</div>
+      <img id="logo-img" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" />
+      <div class="logo-hint">↑</div>
+    </div>
+    <span class="logo-text">1Bytcodeee</span>
+  </div>
+  <input type="file" id="logo-file" accept="image/*" />
+  <div class="h-spacer"></div>
+  <div class="status-pill">
+    <div class="s-dot" id="sdot"></div>
+    <span id="stext">ready</span>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- LEFT: PASTE PANEL -->
+  <div class="left-panel">
+    <div class="lp-title">Input Code</div>
+    <div class="file-tabs">
+      <button class="ftab html active" onclick="setPasteFile('html')">
+        <svg width="12" height="12" viewBox="0 0 512 512" fill="none"><path d="M107.6 471L64 0h384l-44 471-148 41L107.6 471z" fill="#e44d26"/><path d="M256 437l120-33.3 37.6-421.7H256V437z" fill="#f16529"/><path d="M256 208h-62l-4-46h66V116H129l10.4 117H256v-25zM256 306l-.5.1-50.8-13.7-3.3-36.5h-46.1l6.4 72.5 93.3 25.9.5-.1V306z" fill="#ebebeb"/><path d="M256 208v46h57.7l-5.4 61-52.3 14v47.5l93.4-25.9 6.9-77.2 7.1-79.4H256zM256 116v46h114.5l3.9-46H256z" fill="#fff"/></svg>
+        HTML
+      </button>
+      <button class="ftab css" onclick="setPasteFile('css')">
+        <svg width="12" height="12" viewBox="0 0 512 512" fill="none"><path d="M107.6 471L64 0h384l-44 471-148 41L107.6 471z" fill="#1172b8"/><path d="M256 437l120-33.3 37.6-421.7H256V437z" fill="#33aadd"/><path d="M256 208h-62l-4-46h66V116H129l10.4 117H256v-25zM256 306l-.5.1-50.8-13.7-3.3-36.5h-46.1l6.4 72.5 93.3 25.9.5-.1V306z" fill="#ebebeb"/><path d="M256 208v46h57.7l-5.4 61-52.3 14v47.5l93.4-25.9 6.9-77.2 7.1-79.4H256zM256 116v46h114.5l3.9-46H256z" fill="#fff"/></svg>
+        CSS
+      </button>
+      <button class="ftab js" onclick="setPasteFile('js')">
+        <svg width="12" height="12" viewBox="0 0 630 630" fill="none"><rect width="630" height="630" fill="#f7df1e" rx="2"/><path d="M423.2 492.19c12.69 20.72 29.2 35.95 58.4 35.95 24.53 0 40.2-12.26 40.2-29.2 0-20.3-16.1-27.49-43.1-39.3l-14.8-6.35c-42.72-18.2-71.1-41-71.1-89.2 0-44.4 33.83-78.2 86.7-78.2 37.64 0 64.7 13.1 84.2 47.4l-46.1 29.6c-10.15-18.2-21.1-25.37-38.1-25.37-17.34 0-28.33 11-28.33 25.37 0 17.76 11 24.95 36.4 35.95l14.8 6.34c50.3 21.57 78.7 43.56 78.7 92.96 0 53.3-41.87 82.5-98.1 82.5-54.98 0-90.5-26.2-107.88-60.54l47.28-27.16zm-209.13 5.13c9.3 16.5 17.76 30.45 38.1 30.45 19.45 0 31.72-7.61 31.72-37.2v-201.3h58.2v202.1c0 61.3-35.94 89.2-88.4 89.2-47.4 0-74.85-24.53-88.81-54.075l49.19-29.075z" fill="#323330"/></svg>
+        JS
+      </button>
+    </div>
+    <textarea class="paste-box" id="paste-box" spellcheck="false"
+      placeholder="Paste your code here...&#10;&#10;Pick a file type above,&#10;then hit ▶ Play."></textarea>
+    <div class="controls">
+      <div class="speed-row">
+        <span class="speed-label">Speed</span>
+        <input type="range" id="spd" min="1" max="10" value="5" oninput="onSpeed()" />
+        <span class="speed-val" id="spdval">5</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-play" id="btn-play" onclick="play()">▶ Play</button>
+        <button class="btn btn-stop" onclick="stop()">■ Stop</button>
+        <button class="btn btn-clr" onclick="clearPaste()" title="Clear">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MIDDLE: EDITOR -->
+  <div class="editor-wrap">
+    <div class="editor-tabs-bar">
+      <div class="etab active" data-tab="html" onclick="switchTab('html')">
+        <span class="eicon-html">
+          <svg width="13" height="13" viewBox="0 0 512 512" fill="none"><path d="M107.6 471L64 0h384l-44 471-148 41L107.6 471z" fill="#e44d26"/><path d="M256 437l120-33.3 37.6-421.7H256V437z" fill="#f16529"/><path d="M256 208h-62l-4-46h66V116H129l10.4 117H256v-25zM256 306l-.5.1-50.8-13.7-3.3-36.5h-46.1l6.4 72.5 93.3 25.9.5-.1V306z" fill="#ebebeb"/><path d="M256 208v46h57.7l-5.4 61-52.3 14v47.5l93.4-25.9 6.9-77.2 7.1-79.4H256zM256 116v46h114.5l3.9-46H256z" fill="#fff"/></svg>
+        </span>
+        <span>index.html</span><span class="edot"></span>
+      </div>
+      <div class="etab" data-tab="css" onclick="switchTab('css')">
+        <span class="eicon-css">
+          <svg width="13" height="13" viewBox="0 0 512 512" fill="none"><path d="M107.6 471L64 0h384l-44 471-148 41L107.6 471z" fill="#1172b8"/><path d="M256 437l120-33.3 37.6-421.7H256V437z" fill="#33aadd"/><path d="M256 208h-62l-4-46h66V116H129l10.4 117H256v-25zM256 306l-.5.1-50.8-13.7-3.3-36.5h-46.1l6.4 72.5 93.3 25.9.5-.1V306z" fill="#ebebeb"/><path d="M256 208v46h57.7l-5.4 61-52.3 14v47.5l93.4-25.9 6.9-77.2 7.1-79.4H256zM256 116v46h114.5l3.9-46H256z" fill="#fff"/></svg>
+        </span>
+        <span>style.css</span><span class="edot"></span>
+      </div>
+      <div class="etab" data-tab="js" onclick="switchTab('js')">
+        <span class="eicon-js">
+          <svg width="13" height="13" viewBox="0 0 630 630" fill="none"><rect width="630" height="630" fill="#f7df1e" rx="2"/><path d="M423.2 492.19c12.69 20.72 29.2 35.95 58.4 35.95 24.53 0 40.2-12.26 40.2-29.2 0-20.3-16.1-27.49-43.1-39.3l-14.8-6.35c-42.72-18.2-71.1-41-71.1-89.2 0-44.4 33.83-78.2 86.7-78.2 37.64 0 64.7 13.1 84.2 47.4l-46.1 29.6c-10.15-18.2-21.1-25.37-38.1-25.37-17.34 0-28.33 11-28.33 25.37 0 17.76 11 24.95 36.4 35.95l14.8 6.34c50.3 21.57 78.7 43.56 78.7 92.96 0 53.3-41.87 82.5-98.1 82.5-54.98 0-90.5-26.2-107.88-60.54l47.28-27.16zm-209.13 5.13c9.3 16.5 17.76 30.45 38.1 30.45 19.45 0 31.72-7.61 31.72-37.2v-201.3h58.2v202.1c0 61.3-35.94 89.2-88.4 89.2-47.4 0-74.85-24.53-88.81-54.075l49.19-29.075z" fill="#323330"/></svg>
+        </span>
+        <span>script.js</span><span class="edot"></span>
+      </div>
+    </div>
+    <div class="editor-inner">
+      <div class="ln-col" id="lncol"><span class="cur">1</span></div>
+      <div class="code-scroll" id="code-scroll">
+        <div class="code-display-wrap" id="code-display-wrap">
+          <div class="code-display" id="code-display"></div>
+          <textarea class="code-input" id="code-input" spellcheck="false"
+            autocorrect="off" autocapitalize="off"
+            oninput="onManualInput()"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: PREVIEW -->
+  <div class="preview-wrap">
+    <div class="preview-bar">
+      <div class="win-dots">
+        <div class="wd r"></div><div class="wd y"></div><div class="wd g"></div>
+      </div>
+      <span class="preview-title">Live Preview</span>
+      <button class="btn-refresh" onclick="hardRefreshPreview()" title="Refresh preview">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"/>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+      </button>
+    </div>
+    <iframe class="preview-frame" id="preview" sandbox="allow-scripts allow-same-origin"></iframe>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════
+// STATE
+// ════════════════════════════════════
+const S = {
+  pasteFile: 'html',
+  activeTab: 'html',
+  codes: { html: '', css: '', js: '' },
+  typing: false,
+  timer: null,
+  queue: [],
+  qi: 0,
+};
+
+// ════════════════════════════════════
+// IFRAME BOOTSTRAP
+// Initialize the iframe once with an empty shell so its document
+// always exists — no white flash on subsequent live updates.
+// ════════════════════════════════════
+const FRAME_SHELL = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style id="__live_css__">*{box-sizing:border-box;}</style>
+</head><body id="__live_body__"></body></html>`;
+
+function initPreviewFrame() {
+  const frame = document.getElementById('preview');
+  frame.srcdoc = FRAME_SHELL;
+}
+
+// ════════════════════════════════════
+// FLASH-FREE LIVE UPDATE
+// Directly patches body and style tag inside the live iframe —
+// never reloads the document, so no white flash.
+// ════════════════════════════════════
+function liveUpdatePreview() {
+  const frame = document.getElementById('preview');
+  try {
+    const doc = frame.contentDocument;
+    if (!doc) return;
+
+    // Update CSS — just swap the text inside the style tag
+    let styleEl = doc.getElementById('__live_css__');
+    if (!styleEl) {
+      styleEl = doc.createElement('style');
+      styleEl.id = '__live_css__';
+      doc.head.appendChild(styleEl);
+    }
+    styleEl.textContent = '* { box-sizing: border-box; }\n' + S.codes.css;
+
+    // Update HTML — swap body innerHTML
+    let bodyEl = doc.getElementById('__live_body__');
+    if (!bodyEl) bodyEl = doc.body;
+    bodyEl.innerHTML = S.codes.html;
+
+  } catch(e) {
+    // If cross-origin issue somehow, fall back gracefully
+  }
+}
+
+// ════════════════════════════════════
+// HARD REFRESH (manual button only)
+// Full srcdoc reload — also re-executes JS.
+// ════════════════════════════════════
+function hardRefreshPreview() {
+  const doc = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style id="__live_css__">*{box-sizing:border-box;}
+${S.codes.css}
+</style></head><body id="__live_body__">
+${S.codes.html}
+<script>try{
+${S.codes.js}
+}catch(e){console.warn(e);}
+<\/script></body></html>`;
+  const frame = document.getElementById('preview');
+  frame.srcdoc = doc;
+}
+
+// ════════════════════════════════════
+// DOT GRID SHINE
+// ════════════════════════════════════
+document.addEventListener('mousemove', e => {
+  document.getElementById('shine').style.setProperty('--mx', e.clientX + 'px');
+  document.getElementById('shine').style.setProperty('--my', e.clientY + 'px');
+});
+
+// ════════════════════════════════════
+// LOGO UPLOAD
+// ════════════════════════════════════
+document.getElementById('logo-file').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const url = URL.createObjectURL(f);
+  const img = document.getElementById('logo-img');
+  img.src = url; img.style.display = 'block';
+  document.getElementById('logo-fallback').style.display = 'none';
+});
+
+// ════════════════════════════════════
+// PASTE FILE SELECTOR
+// ════════════════════════════════════
+function setPasteFile(f) {
+  S.pasteFile = f;
+  document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
+  document.querySelector('.ftab.' + f).classList.add('active');
+}
+
+// ════════════════════════════════════
+// SPEED
+// ════════════════════════════════════
+function onSpeed() {
+  const v = document.getElementById('spd').value;
+  document.getElementById('spdval').textContent = v;
+  const pct = ((v - 1) / 9) * 100;
+  document.getElementById('spd').style.background =
+    `linear-gradient(90deg, var(--accent) ${pct}%, var(--border2) ${pct}%)`;
+}
+function getDelay() {
+  const v = +document.getElementById('spd').value;
+  return Math.round(130 - (v - 1) * 13);
+}
+onSpeed();
+
+// ════════════════════════════════════
+// PLAY / STOP / CLEAR
+// ════════════════════════════════════
+function play() {
+  const code = document.getElementById('paste-box').value;
+  if (!code.trim()) { showToast('Nothing to type!'); return; }
+  if (S.typing) stop();
+  if (S.activeTab !== S.pasteFile) switchTab(S.pasteFile);
+  S.typing = true;
+  S.queue  = code.split('');
+  S.qi     = 0;
+  setStatus('typing');
+  document.getElementById('btn-play').disabled = true;
+  tick();
+}
+
+let _hlPending = false;
+function tick() {
+  if (!S.typing || S.qi >= S.queue.length) { finish(); return; }
+
+  const ch = S.queue[S.qi++];
+  S.codes[S.activeTab] += ch;
+
+  const inp = document.getElementById('code-input');
+  inp.value = S.codes[S.activeTab];
+
+  if (!_hlPending) {
+    _hlPending = true;
+    requestAnimationFrame(() => {
+      renderHL(S.activeTab);
+      updateLN();
+      syncWrapSize();
+      _hlPending = false;
+    });
+  }
+
+  scrollToCursor();
+  markDirty(S.activeTab);
+
+  // ── FLASH-FREE: use liveUpdatePreview on meaningful chars ──
+  if (ch === '\n' || ch === ';' || ch === '}' || ch === '>') {
+    liveUpdatePreview();
+  }
+
+  S.timer = setTimeout(tick, getDelay());
+}
+
+function finish() {
+  S.typing = false; clearTimeout(S.timer);
+  renderHL(S.activeTab);
+  // Full hard refresh at the end so JS also runs
+  hardRefreshPreview();
+  setStatus('ready');
+  document.getElementById('btn-play').disabled = false;
+  showToast('Done! ✓');
+}
+
+function stop() {
+  S.typing = false; clearTimeout(S.timer);
+  renderHL(S.activeTab);
+  hardRefreshPreview();
+  setStatus('ready');
+  document.getElementById('btn-play').disabled = false;
+}
+
+function clearPaste() { document.getElementById('paste-box').value = ''; }
+
+// ════════════════════════════════════
+// CURSOR-FOLLOWING SCROLL
+// ════════════════════════════════════
+function scrollToCursor() {
+  const scroll = document.getElementById('code-scroll');
+  const code = S.codes[S.activeTab];
+  const lines = code.split('\n');
+  const currentLine = lines.length - 1;
+  const currentCol  = lines[currentLine].length;
+
+  const LINE_HEIGHT = 21;
+  const CHAR_WIDTH  = 7.8;
+  const PAD_V = 12;
+  const PAD_H = 16;
+
+  const cursorTop  = PAD_V + currentLine * LINE_HEIGHT;
+  const cursorLeft = PAD_H + currentCol  * CHAR_WIDTH;
+
+  const viewH = scroll.clientHeight;
+  const viewW = scroll.clientWidth;
+
+  const marginBottom = LINE_HEIGHT * 3;
+  if (cursorTop + LINE_HEIGHT + marginBottom > scroll.scrollTop + viewH)
+    scroll.scrollTop = cursorTop + LINE_HEIGHT + marginBottom - viewH;
+  if (cursorTop < scroll.scrollTop + PAD_V)
+    scroll.scrollTop = Math.max(0, cursorTop - PAD_V);
+
+  const marginRight = 80;
+  if (cursorLeft + marginRight > scroll.scrollLeft + viewW)
+    scroll.scrollLeft = cursorLeft + marginRight - viewW;
+  if (cursorLeft < scroll.scrollLeft + PAD_H)
+    scroll.scrollLeft = Math.max(0, cursorLeft - PAD_H);
+
+  document.getElementById('lncol').scrollTop = scroll.scrollTop;
+}
+
+// ════════════════════════════════════
+// TAB SWITCH
+// ════════════════════════════════════
+function switchTab(tab) {
+  S.codes[S.activeTab] = document.getElementById('code-input').value;
+  markDirty(S.activeTab);
+  S.activeTab = tab;
+  document.querySelectorAll('.etab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.etab[data-tab="' + tab + '"]').classList.add('active');
+  document.getElementById('code-input').value = S.codes[tab];
+  renderHL(tab);
+  updateLN();
+  syncWrapSize();
+}
+
+function markDirty(tab) {
+  const el = document.querySelector('.etab[data-tab="' + tab + '"]');
+  if (S.codes[tab].trim()) el.classList.add('dirty');
+  else el.classList.remove('dirty');
+}
+
+function onManualInput() {
+  if (S.typing) return;
+  S.codes[S.activeTab] = document.getElementById('code-input').value;
+  renderHL(S.activeTab);
+  updateLN();
+  syncWrapSize();
+  markDirty(S.activeTab);
+  liveUpdatePreview();
+}
+
+function syncWrapSize() {
+  const inp = document.getElementById('code-input');
+  const wrap = document.getElementById('code-display-wrap');
+  const lines = (S.codes[S.activeTab] || '').split('\n');
+  const lineCount = lines.length;
+  const maxLen = lines.reduce((m, l) => Math.max(m, l.length), 0);
+  const h = Math.max(lineCount * 21 + 24, document.getElementById('code-scroll').clientHeight);
+  const w = Math.max(maxLen * 7.8 + 32, document.getElementById('code-scroll').clientWidth);
+  wrap.style.height = h + 'px';
+  wrap.style.width  = w + 'px';
+  inp.style.height  = h + 'px';
+  inp.style.width   = w + 'px';
+}
+
+// ════════════════════════════════════
+// SYNTAX HIGHLIGHTING
+// ════════════════════════════════════
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderHL(lang) {
+  const raw = document.getElementById('code-input').value;
+  document.getElementById('code-display').innerHTML =
+    highlight(raw, lang) + '<span class="cursor-beam"></span>';
+}
+
+function highlight(code, lang) {
+  if (lang === 'html') return hlHTML(code);
+  if (lang === 'css')  return hlCSS(code);
+  if (lang === 'js')   return hlJS(code);
+  return esc(code);
+}
+
+// ── HTML ──
+function hlHTML(code) {
+  let out = ''; let i = 0; const len = code.length;
+  while (i < len) {
+    if (code.slice(i, i+4) === '<!--') {
+      const end = code.indexOf('-->', i+4);
+      if (end === -1) { out += `<span class="t-cmt">${esc(code.slice(i))}</span>`; break; }
+      out += `<span class="t-cmt">${esc(code.slice(i, end+3))}</span>`; i = end+3; continue;
+    }
+    if (code[i] === '<') {
+      const end = code.indexOf('>', i+1);
+      if (end === -1) { out += esc(code.slice(i)); break; }
+      out += hlTag(code.slice(i, end+1)); i = end+1; continue;
+    }
+    let j = i; while (j < len && code[j] !== '<') j++;
+    out += esc(code.slice(i, j)); i = j;
+  }
+  return out;
+}
+
+function hlTag(raw) {
+  let out = '<span class="t-pun">&lt;</span>';
+  let inner = raw.slice(1, raw.endsWith('/>') ? -2 : raw.endsWith('>') ? -1 : raw.length);
+  let i = 0;
+  if (inner[0] === '/') { out += '<span class="t-pun">/</span>'; i++; }
+  let ne = i; while (ne < inner.length && /[\w\-\:]/.test(inner[ne])) ne++;
+  if (ne > i) out += `<span class="t-tag">${esc(inner.slice(i, ne))}</span>`;
+  i = ne;
+  while (i < inner.length) {
+    if (/\s/.test(inner[i])) { out += inner[i]; i++; continue; }
+    if (inner[i] === '/') { out += '<span class="t-pun">/</span>'; i++; continue; }
+    let ae = i; while (ae < inner.length && !/[\s=\/]/.test(inner[ae])) ae++;
+    out += `<span class="t-attr">${esc(inner.slice(i, ae))}</span>`; i = ae;
+    if (inner[i] === '=') {
+      out += '<span class="t-pun">=</span>'; i++;
+      if (inner[i] === '"' || inner[i] === "'") {
+        const q = inner[i];
+        let qe = inner.indexOf(q, i+1);
+        if (qe === -1) qe = inner.length - 1;
+        out += `<span class="t-str">${esc(inner.slice(i, qe+1))}</span>`; i = qe+1;
+      }
+    }
+  }
+  out += raw.endsWith('/>') ? '<span class="t-pun">/&gt;</span>' : '<span class="t-pun">&gt;</span>';
+  return out;
+}
+
+// ── CSS ──
+function hlCSS(code) {
+  let out = ''; let i = 0; const len = code.length; let inBlock = false;
+  while (i < len) {
+    if (code.slice(i,i+2) === '/*') {
+      const end = code.indexOf('*/', i+2);
+      const stop = end === -1 ? len : end+2;
+      out += `<span class="t-cmt">${esc(code.slice(i,stop))}</span>`; i = stop; continue;
+    }
+    if (!inBlock) {
+      if (code[i] === '{') { out += '<span class="t-pun">{</span>'; inBlock = true; i++; continue; }
+      let j = i;
+      while (j < len && code[j] !== '{' && code.slice(j,j+2) !== '/*') j++;
+      if (j > i) out += `<span class="t-sel">${esc(code.slice(i,j))}</span>`;
+      i = j;
+    } else {
+      if (code[i] === '}') { out += '<span class="t-pun">}</span>'; inBlock = false; i++; continue; }
+      let j = i;
+      while (j < len && code[j] !== ':' && code[j] !== '}' && code.slice(j,j+2) !== '/*') j++;
+      const propStr = code.slice(i, j);
+      if (propStr.trim()) out += `<span class="t-prop">${esc(propStr)}</span>`;
+      else out += esc(propStr);
+      i = j;
+      if (code[i] === ':') {
+        out += '<span class="t-pun">:</span>'; i++;
+        let k = i;
+        while (k < len && code[k] !== ';' && code[k] !== '}') k++;
+        out += hlCSSVal(code.slice(i, k)); i = k;
+        if (code[i] === ';') { out += '<span class="t-pun">;</span>'; i++; }
+      }
+    }
+  }
+  return out;
+}
+
+function hlCSSVal(val) {
+  let out = ''; let i = 0;
+  while (i < val.length) {
+    if (val[i] === '"' || val[i] === "'") {
+      const q = val[i]; let e = val.indexOf(q, i+1);
+      if (e === -1) e = val.length-1;
+      out += `<span class="t-str">${esc(val.slice(i,e+1))}</span>`; i = e+1; continue;
+    }
+    if (val[i] === '#') {
+      let j = i+1; while (j < val.length && /[0-9a-fA-F]/.test(val[j])) j++;
+      out += `<span class="t-num">${esc(val.slice(i,j))}</span>`; i = j; continue;
+    }
+    if (/\d/.test(val[i])) {
+      let j = i; while (j < val.length && /[\d.]/.test(val[j])) j++;
+      const num = val.slice(i,j);
+      let ue = j; while (ue < val.length && /[a-zA-Z%]/.test(val[ue])) ue++;
+      const unit = val.slice(j, ue);
+      out += `<span class="t-num">${esc(num)}</span>`;
+      if (unit) out += `<span class="t-unit">${esc(unit)}</span>`;
+      i = ue; continue;
+    }
+    out += esc(val[i]); i++;
+  }
+  return out;
+}
+
+// ── JS ──
+function hlJS(code) {
+  const KW = new Set(['const','let','var','function','return','if','else','for','while',
+    'do','class','extends','import','export','default','new','this','typeof','instanceof',
+    'async','await','try','catch','finally','throw','switch','case','break','continue',
+    'of','in','delete','void','yield','static','get','set','from','null','undefined']);
+  const BOOL = new Set(['true','false']);
+  let out = ''; let i = 0; const len = code.length;
+  while (i < len) {
+    if (code.slice(i,i+2) === '//') {
+      let j = i; while (j < len && code[j] !== '\n') j++;
+      out += `<span class="t-cmt">${esc(code.slice(i,j))}</span>`; i = j; continue;
+    }
+    if (code.slice(i,i+2) === '/*') {
+      const end = code.indexOf('*/', i+2);
+      const stop = end === -1 ? len : end+2;
+      out += `<span class="t-cmt">${esc(code.slice(i,stop))}</span>`; i = stop; continue;
+    }
+    if (code[i] === '`') {
+      let j = i+1;
+      while (j < len && code[j] !== '`') { if (code[j] === '\\') j++; j++; }
+      out += `<span class="t-str">${esc(code.slice(i,j+1))}</span>`; i = j+1; continue;
+    }
+    if (code[i] === '"' || code[i] === "'") {
+      const q = code[i]; let j = i+1;
+      while (j < len && code[j] !== q) { if (code[j] === '\\') j++; j++; }
+      out += `<span class="t-str">${esc(code.slice(i,j+1))}</span>`; i = j+1; continue;
+    }
+    if (/\d/.test(code[i])) {
+      let j = i; while (j < len && /[\d.xXa-fA-F_]/.test(code[j])) j++;
+      out += `<span class="t-num">${esc(code.slice(i,j))}</span>`; i = j; continue;
+    }
+    if (/[a-zA-Z_$]/.test(code[i])) {
+      let j = i; while (j < len && /[\w$]/.test(code[j])) j++;
+      const word = code.slice(i,j);
+      let k = j; while (k < len && code[k] === ' ') k++;
+      if (KW.has(word)) out += `<span class="t-kw">${esc(word)}</span>`;
+      else if (BOOL.has(word)) out += `<span class="t-bool">${esc(word)}</span>`;
+      else if (code[k] === '(') out += `<span class="t-fn">${esc(word)}</span>`;
+      else out += esc(word);
+      i = j; continue;
+    }
+    const two   = code.slice(i,i+2);
+    const three = code.slice(i,i+3);
+    if (['===','!=='].includes(three)) { out += `<span class="t-op">${esc(three)}</span>`; i+=3; continue; }
+    if (['==','!=','<=','>=','=>','&&','||','++','--','**','<<','>>'].includes(two)) {
+      out += `<span class="t-op">${esc(two)}</span>`; i+=2; continue;
+    }
+    if ('+-*/%=<>!&|^~?'.includes(code[i])) { out += `<span class="t-op">${esc(code[i])}</span>`; i++; continue; }
+    if ('{}[]();,.'.includes(code[i])) { out += `<span class="t-pun">${esc(code[i])}</span>`; i++; continue; }
+    out += esc(code[i]); i++;
+  }
+  return out;
+}
+
+// ════════════════════════════════════
+// LINE NUMBERS
+// ════════════════════════════════════
+function updateLN() {
+  const code = document.getElementById('code-input').value;
+  const count = (code.match(/\n/g) || []).length + 1;
+  const col = document.getElementById('lncol');
+  let html = '';
+  for (let n = 1; n <= count; n++) {
+    html += `<span${n === count ? ' class="cur"' : ''}>${n}</span>`;
+  }
+  col.innerHTML = html;
+}
+
+document.getElementById('code-scroll').addEventListener('scroll', function () {
+  document.getElementById('lncol').scrollTop = this.scrollTop;
+});
+
+// ════════════════════════════════════
+// STATUS & TOAST
+// ════════════════════════════════════
+function setStatus(s) {
+  document.getElementById('sdot').className = 's-dot ' + s;
+  document.getElementById('stext').textContent = s === 'typing' ? 'typing...' : 'ready';
+}
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ════════════════════════════════════
+// INIT
+// ════════════════════════════════════
+initPreviewFrame();
+renderHL('html');
+updateLN();
+syncWrapSize();
+setStatus('ready');
+</script>
+</body>
+</html>
