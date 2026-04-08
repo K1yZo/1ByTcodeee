@@ -130,7 +130,7 @@ header {
 }
 .s-dot { width:6px;height:6px;border-radius:50%;background:var(--text-muted);transition:background 0.3s; }
 .s-dot.typing { background:var(--accent);animation:blink-dot 0.8s infinite;box-shadow:0 0 6px var(--accent); }
-.s-dot.ready  { background:#3fb950;box-shadow:0 0 6px #3fb950; }
+.s-dot.ready { background:#3fb950;box-shadow:0 0 6px #3fb950; }
 @keyframes blink-dot { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
 .app {
@@ -175,8 +175,8 @@ header {
 }
 .ftab:hover { background:rgba(255,255,255,0.06);color:var(--text); }
 .ftab.active.html { background:rgba(241,101,41,0.12);border-color:rgba(241,101,41,0.4);color:var(--html-color);box-shadow: 0 0 12px rgba(241,101,41,0.12), inset 0 1px 0 rgba(241,101,41,0.1); }
-.ftab.active.css  { background:rgba(107,159,255,0.12);border-color:rgba(107,159,255,0.4);color:var(--css-color);box-shadow: 0 0 12px rgba(107,159,255,0.12), inset 0 1px 0 rgba(107,159,255,0.1); }
-.ftab.active.js   { background:rgba(240,219,79,0.12);border-color:rgba(240,219,79,0.4);color:var(--js-color);box-shadow: 0 0 12px rgba(240,219,79,0.12), inset 0 1px 0 rgba(240,219,79,0.1); }
+.ftab.active.css { background:rgba(107,159,255,0.12);border-color:rgba(107,159,255,0.4);color:var(--css-color);box-shadow: 0 0 12px rgba(107,159,255,0.12), inset 0 1px 0 rgba(107,159,255,0.1); }
+.ftab.active.js { background:rgba(240,219,79,0.12);border-color:rgba(240,219,79,0.4);color:var(--js-color);box-shadow: 0 0 12px rgba(240,219,79,0.12), inset 0 1px 0 rgba(240,219,79,0.1); }
 .ftab svg { flex-shrink: 0; }
 
 .paste-box {
@@ -268,8 +268,8 @@ input[type=range]::-webkit-slider-thumb {
 .etab.dirty .edot { background:var(--accent);border-color:var(--accent);box-shadow:0 0 5px var(--accent); }
 
 .eicon-html { color:var(--html-color); display:flex; align-items:center; }
-.eicon-css  { color:var(--css-color); display:flex; align-items:center; }
-.eicon-js   { color:var(--js-color); display:flex; align-items:center; }
+.eicon-css { color:var(--css-color); display:flex; align-items:center; }
+.eicon-js { color:var(--js-color); display:flex; align-items:center; }
 
 .editor-inner { flex:1;display:flex;overflow:hidden;position:relative; }
 
@@ -313,20 +313,20 @@ input[type=range]::-webkit-slider-thumb {
   min-width: 100%; min-height: 100%;
 }
 
-.t-tag  { color:#569cd6; }
+.t-tag { color:#569cd6; }
 .t-attr { color:#9cdcfe; }
-.t-str  { color:#ce9178; }
-.t-cmt  { color:#5a8f5a;font-style:italic; }
-.t-kw   { color:#c586c0; }
-.t-num  { color:#b5cea8; }
-.t-fn   { color:#dcdcaa; }
+.t-str { color:#ce9178; }
+.t-cmt { color:#5a8f5a;font-style:italic; }
+.t-kw { color:#c586c0; }
+.t-num { color:#b5cea8; }
+.t-fn { color:#dcdcaa; }
 .t-prop { color:#9cdcfe; }
-.t-sel  { color:#d7ba7d; }
+.t-sel { color:#d7ba7d; }
 .t-unit { color:#b5cea8; }
-.t-pun  { color:#606080; }
-.t-val  { color:#ce9178; }
+.t-pun { color:#606080; }
+.t-val { color:#ce9178; }
 .t-bool { color:#569cd6; }
-.t-op   { color:#d4d4d4; }
+.t-op { color:#d4d4d4; }
 
 .cursor-beam {
   display:inline-block;width:2px;height:14px;
@@ -336,11 +336,16 @@ input[type=range]::-webkit-slider-thumb {
 }
 @keyframes cblink { 0%,100%{opacity:1} 50%{opacity:0} }
 
+/* ════════════════════════════════════
+   PREVIEW PANEL — normal state
+════════════════════════════════════ */
 .preview-wrap {
   display:flex; flex-direction:column; overflow:hidden;
   background: rgba(10,10,20,0.5);
   backdrop-filter: blur(20px);
+  position: relative;
 }
+
 .preview-bar {
   height:38px;
   background: rgba(8,8,16,0.8);
@@ -370,8 +375,157 @@ input[type=range]::-webkit-slider-thumb {
   transform: rotate(90deg);
 }
 
+/* Expand button */
+.btn-expand {
+  width:26px;height:26px;border-radius:7px;border:1px solid var(--border2);
+  background:rgba(255,255,255,0.04);color:var(--text-dim);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.2s;
+  backdrop-filter: blur(8px);
+  flex-shrink: 0;
+}
+.btn-expand:hover {
+  color:var(--accent2);border-color:rgba(124,111,255,0.4);
+  background:rgba(124,111,255,0.08);
+  box-shadow:0 0 10px rgba(124,111,255,0.15);
+}
+
 .preview-frame { flex:1;border:none;background:#fff;display:block; }
 
+/* ════════════════════════════════════
+   EXPANDED PREVIEW OVERLAY
+════════════════════════════════════ */
+.preview-overlay {
+  position: fixed;
+  /* start offscreen to the right for slide-in animation */
+  top: 52px;
+  right: 0;
+  width: 0;
+  height: calc(100vh - 52px);
+  background: rgba(8,8,16,0.97);
+  backdrop-filter: blur(24px);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--glass-border);
+  box-shadow: -8px 0 40px rgba(0,0,0,0.6), -1px 0 0 rgba(78,201,176,0.08);
+  overflow: hidden;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.preview-overlay.open {
+  width: 62%;
+  pointer-events: all;
+  opacity: 1;
+}
+
+/* Overlay top bar (mirrors .preview-bar) */
+.overlay-bar {
+  height: 38px;
+  background: rgba(8,8,16,0.95);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.overlay-title {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.1em;
+}
+
+.overlay-bar .h-spacer { flex: 1; }
+
+.btn-collapse {
+  width:26px;height:26px;border-radius:7px;border:1px solid var(--border2);
+  background:rgba(255,255,255,0.04);color:var(--text-dim);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.2s;
+  backdrop-filter: blur(8px);
+}
+.btn-collapse:hover {
+  color:#f47c7c;border-color:rgba(244,124,124,0.4);
+  background:rgba(244,124,124,0.08);
+  box-shadow:0 0 10px rgba(244,124,124,0.1);
+}
+
+/* Fake URL bar */
+.url-bar {
+  height: 36px;
+  background: rgba(13,13,22,0.9);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.url-dots { display:flex;gap:5px;flex-shrink:0; }
+.url-dot { width:9px;height:9px;border-radius:50%; }
+.url-dot.r{background:#ff5f57;box-shadow:0 0 5px rgba(255,95,87,0.35);}
+.url-dot.y{background:#febc2e;box-shadow:0 0 5px rgba(254,188,46,0.35);}
+.url-dot.g{background:#28c840;box-shadow:0 0 5px rgba(40,200,64,0.35);}
+
+.url-input-wrap {
+  flex: 1;
+  height: 22px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.url-lock {
+  color: #3fb950;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.url-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.url-text .url-protocol { color: #5a5f7a; }
+.url-text .url-host { color: var(--accent); }
+.url-text .url-path { color: #7c7f9a; }
+
+.url-reload {
+  width:22px;height:22px;border-radius:5px;border:1px solid var(--border);
+  background:rgba(255,255,255,0.03);color:var(--text-dim);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.2s;flex-shrink:0;
+}
+.url-reload:hover {
+  color:var(--accent);border-color:rgba(78,201,176,0.3);
+  background:rgba(78,201,176,0.06);
+  transform: rotate(90deg);
+}
+
+/* The expanded iframe */
+.overlay-frame {
+  flex:1;border:none;background:#fff;display:block;
+}
+
+/* ════════════════════════════════════
+   SCROLLBAR
+════════════════════════════════════ */
 ::-webkit-scrollbar { width:6px;height:6px; }
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08);border-radius:4px; }
@@ -497,7 +651,7 @@ input[type=range]::-webkit-slider-thumb {
     </div>
   </div>
 
-  <!-- RIGHT: PREVIEW -->
+  <!-- RIGHT: PREVIEW (normal/small) -->
   <div class="preview-wrap">
     <div class="preview-bar">
       <div class="win-dots">
@@ -510,10 +664,77 @@ input[type=range]::-webkit-slider-thumb {
           <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
         </svg>
       </button>
+      <!-- Expand button -->
+      <button class="btn-expand" onclick="openOverlay()" title="Expand preview">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 3 21 3 21 9"/>
+          <polyline points="9 21 3 21 3 15"/>
+          <line x1="21" y1="3" x2="14" y2="10"/>
+          <line x1="3" y1="21" x2="10" y2="14"/>
+        </svg>
+      </button>
     </div>
     <iframe class="preview-frame" id="preview" sandbox="allow-scripts allow-same-origin"></iframe>
   </div>
 
+</div>
+
+<!-- ════════════════════════════════════
+     EXPANDED PREVIEW OVERLAY
+════════════════════════════════════ -->
+<div class="preview-overlay" id="preview-overlay">
+
+  <!-- Top bar -->
+  <div class="overlay-bar">
+    <div class="win-dots">
+      <div class="wd r"></div><div class="wd y"></div><div class="wd g"></div>
+    </div>
+    <span class="overlay-title">Live Preview</span>
+    <div class="h-spacer"></div>
+    <button class="btn-refresh" onclick="hardRefreshOverlay()" title="Refresh">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"/>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+      </svg>
+    </button>
+    <button class="btn-collapse" onclick="closeOverlay()" title="Collapse">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 14 10 14 10 20"/>
+        <polyline points="20 10 14 10 14 4"/>
+        <line x1="10" y1="14" x2="3" y2="21"/>
+        <line x1="21" y1="3" x2="14" y2="10"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Fake URL bar -->
+  <div class="url-bar">
+    <div class="url-dots">
+      <div class="url-dot r"></div>
+      <div class="url-dot y"></div>
+      <div class="url-dot g"></div>
+    </div>
+    <div class="url-input-wrap">
+      <span class="url-lock">
+        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </span>
+      <span class="url-text">
+        <span class="url-protocol">localhost</span><span class="url-host">:// </span><span class="url-path">preview · 1Bytcodeee</span>
+      </span>
+    </div>
+    <button class="url-reload" onclick="hardRefreshOverlay()" title="Reload">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"/>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Expanded iframe -->
+  <iframe class="overlay-frame" id="overlay-frame" sandbox="allow-scripts allow-same-origin"></iframe>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -530,34 +751,37 @@ const S = {
   timer: null,
   queue: [],
   qi: 0,
+  overlayOpen: false,
 };
 
 // ════════════════════════════════════
 // IFRAME BOOTSTRAP
-// Initialize the iframe once with an empty shell so its document
-// always exists — no white flash on subsequent live updates.
 // ════════════════════════════════════
 const FRAME_SHELL = `<!DOCTYPE html><html><head><meta charset="UTF-8">
 <style id="__live_css__">*{box-sizing:border-box;}</style>
 </head><body id="__live_body__"></body></html>`;
 
 function initPreviewFrame() {
-  const frame = document.getElementById('preview');
-  frame.srcdoc = FRAME_SHELL;
+  document.getElementById('preview').srcdoc = FRAME_SHELL;
+}
+
+function initOverlayFrame() {
+  document.getElementById('overlay-frame').srcdoc = FRAME_SHELL;
 }
 
 // ════════════════════════════════════
 // FLASH-FREE LIVE UPDATE
-// Directly patches body and style tag inside the live iframe —
-// never reloads the document, so no white flash.
+// Patches both iframes simultaneously
 // ════════════════════════════════════
 function liveUpdatePreview() {
-  const frame = document.getElementById('preview');
+  _patchFrame(document.getElementById('preview'));
+  if (S.overlayOpen) _patchFrame(document.getElementById('overlay-frame'));
+}
+
+function _patchFrame(frame) {
   try {
     const doc = frame.contentDocument;
     if (!doc) return;
-
-    // Update CSS — just swap the text inside the style tag
     let styleEl = doc.getElementById('__live_css__');
     if (!styleEl) {
       styleEl = doc.createElement('style');
@@ -565,23 +789,17 @@ function liveUpdatePreview() {
       doc.head.appendChild(styleEl);
     }
     styleEl.textContent = '* { box-sizing: border-box; }\n' + S.codes.css;
-
-    // Update HTML — swap body innerHTML
     let bodyEl = doc.getElementById('__live_body__');
     if (!bodyEl) bodyEl = doc.body;
     bodyEl.innerHTML = S.codes.html;
-
-  } catch(e) {
-    // If cross-origin issue somehow, fall back gracefully
-  }
+  } catch(e) {}
 }
 
 // ════════════════════════════════════
-// HARD REFRESH (manual button only)
-// Full srcdoc reload — also re-executes JS.
+// HARD REFRESH
 // ════════════════════════════════════
-function hardRefreshPreview() {
-  const doc = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+function _buildFullDoc() {
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
 <style id="__live_css__">*{box-sizing:border-box;}
 ${S.codes.css}
 </style></head><body id="__live_body__">
@@ -590,8 +808,31 @@ ${S.codes.html}
 ${S.codes.js}
 }catch(e){console.warn(e);}
 <\/script></body></html>`;
-  const frame = document.getElementById('preview');
-  frame.srcdoc = doc;
+}
+
+function hardRefreshPreview() {
+  document.getElementById('preview').srcdoc = _buildFullDoc();
+}
+
+function hardRefreshOverlay() {
+  document.getElementById('overlay-frame').srcdoc = _buildFullDoc();
+}
+
+// ════════════════════════════════════
+// EXPANDED OVERLAY OPEN / CLOSE
+// ════════════════════════════════════
+function openOverlay() {
+  S.overlayOpen = true;
+  const overlay = document.getElementById('preview-overlay');
+  overlay.classList.add('open');
+  // Sync the overlay iframe with current state immediately
+  document.getElementById('overlay-frame').srcdoc = _buildFullDoc();
+}
+
+function closeOverlay() {
+  S.overlayOpen = false;
+  const overlay = document.getElementById('preview-overlay');
+  overlay.classList.remove('open');
 }
 
 // ════════════════════════════════════
@@ -647,8 +888,8 @@ function play() {
   if (S.typing) stop();
   if (S.activeTab !== S.pasteFile) switchTab(S.pasteFile);
   S.typing = true;
-  S.queue  = code.split('');
-  S.qi     = 0;
+  S.queue = code.split('');
+  S.qi = 0;
   setStatus('typing');
   document.getElementById('btn-play').disabled = true;
   tick();
@@ -677,7 +918,6 @@ function tick() {
   scrollToCursor();
   markDirty(S.activeTab);
 
-  // ── FLASH-FREE: use liveUpdatePreview on meaningful chars ──
   if (ch === '\n' || ch === ';' || ch === '}' || ch === '>') {
     liveUpdatePreview();
   }
@@ -688,8 +928,8 @@ function tick() {
 function finish() {
   S.typing = false; clearTimeout(S.timer);
   renderHL(S.activeTab);
-  // Full hard refresh at the end so JS also runs
   hardRefreshPreview();
+  if (S.overlayOpen) hardRefreshOverlay();
   setStatus('ready');
   document.getElementById('btn-play').disabled = false;
   showToast('Done! ✓');
@@ -699,6 +939,7 @@ function stop() {
   S.typing = false; clearTimeout(S.timer);
   renderHL(S.activeTab);
   hardRefreshPreview();
+  if (S.overlayOpen) hardRefreshOverlay();
   setStatus('ready');
   document.getElementById('btn-play').disabled = false;
 }
@@ -713,15 +954,15 @@ function scrollToCursor() {
   const code = S.codes[S.activeTab];
   const lines = code.split('\n');
   const currentLine = lines.length - 1;
-  const currentCol  = lines[currentLine].length;
+  const currentCol = lines[currentLine].length;
 
   const LINE_HEIGHT = 21;
-  const CHAR_WIDTH  = 7.8;
+  const CHAR_WIDTH = 7.8;
   const PAD_V = 12;
   const PAD_H = 16;
 
-  const cursorTop  = PAD_V + currentLine * LINE_HEIGHT;
-  const cursorLeft = PAD_H + currentCol  * CHAR_WIDTH;
+  const cursorTop = PAD_V + currentLine * LINE_HEIGHT;
+  const cursorLeft = PAD_H + currentCol * CHAR_WIDTH;
 
   const viewH = scroll.clientHeight;
   const viewW = scroll.clientWidth;
@@ -781,9 +1022,9 @@ function syncWrapSize() {
   const h = Math.max(lineCount * 21 + 24, document.getElementById('code-scroll').clientHeight);
   const w = Math.max(maxLen * 7.8 + 32, document.getElementById('code-scroll').clientWidth);
   wrap.style.height = h + 'px';
-  wrap.style.width  = w + 'px';
-  inp.style.height  = h + 'px';
-  inp.style.width   = w + 'px';
+  wrap.style.width = w + 'px';
+  inp.style.height = h + 'px';
+  inp.style.width = w + 'px';
 }
 
 // ════════════════════════════════════
@@ -801,8 +1042,8 @@ function renderHL(lang) {
 
 function highlight(code, lang) {
   if (lang === 'html') return hlHTML(code);
-  if (lang === 'css')  return hlCSS(code);
-  if (lang === 'js')   return hlJS(code);
+  if (lang === 'css') return hlCSS(code);
+  if (lang === 'js') return hlJS(code);
   return esc(code);
 }
 
@@ -956,7 +1197,7 @@ function hlJS(code) {
       else out += esc(word);
       i = j; continue;
     }
-    const two   = code.slice(i,i+2);
+    const two = code.slice(i,i+2);
     const three = code.slice(i,i+3);
     if (['===','!=='].includes(three)) { out += `<span class="t-op">${esc(three)}</span>`; i+=3; continue; }
     if (['==','!=','<=','>=','=>','&&','||','++','--','**','<<','>>'].includes(two)) {
@@ -1004,6 +1245,7 @@ function showToast(msg) {
 // INIT
 // ════════════════════════════════════
 initPreviewFrame();
+initOverlayFrame();
 renderHL('html');
 updateLN();
 syncWrapSize();
