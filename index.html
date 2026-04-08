@@ -875,7 +875,7 @@ function onSpeed() {
 }
 function getDelay() {
   const v = +document.getElementById('spd').value;
-  return Math.round(130 - (v - 1) * 13);
+  return Math.max(10, Math.round(80 * Math.pow(0.75, v - 1)) + (Math.random() * 20 - 10));
 }
 onSpeed();
 
